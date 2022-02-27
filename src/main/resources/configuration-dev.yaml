@@ -1,0 +1,14 @@
+http:
+  host: "0.0.0.0"
+  port: "8091"
+  timeout: "30000"
+  path: "/api/salesforceobjectsapi/*"
+
+api:
+  autodiscoveryId: "17614811"
+
+#Salesforce Environment Configuration
+salesforce:
+  url: "https://openlogix-d-dev-ed.my.salesforce.com/services/Soap/u/53.0"
+  token: "u7f7IiEH3FAJEOroGcBcgG3lU"
+  username: "svasam@open-logix.com"

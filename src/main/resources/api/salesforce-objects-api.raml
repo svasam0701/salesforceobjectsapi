@@ -1,0 +1,144 @@
+#%RAML 1.0
+baseUri: https://salesforceobjects.cloudhub.io
+version: 1.0.0
+title: Salesforce Objects API
+
+types:
+  Order: !include types/orderDataType.raml
+  Item: !include types/itemDataType.raml
+  Customer: !include types/customerDataType.raml
+
+traits:
+  client-id-required:
+    headers:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+
+mediaType: application/json
+protocols: [HTTPS]
+
+/order:
+  get:
+    description: get order Information
+    is: [client-id-required]
+    responses:
+      200:
+        body:
+          application/json:
+            type: Order
+            examples:
+              output: !include examples/orderExample.json
+
+  post:
+    description: create order
+    body:
+      application/json:
+        type: Order
+        examples:
+          input: !include examples/orderExample.json
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              message: Order created (but not really)
+
+  /{poNumber}:
+    delete:
+      description: delete the order based on poNumber
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: Order deleted (but not really)
+
+    put:
+      description: update the order based on poNumber
+      body:
+        application/json:
+          type: Order
+          examples:
+            input: !include examples/orderExample.json
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: Order updated (but not really)
+
+/item:
+  get:
+    description: get Item Information
+    responses:
+      200:
+        body:
+          application/json:
+            type: Item
+            examples:
+              output: !include examples/itemExample.json
+
+  post:
+    description: create item in object
+    body:
+      application/json:
+        type: Item
+        examples:
+          input: !include examples/itemExample.json
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              message: Item created (but not really)
+
+  /{ID}:
+    delete:
+      description: delete the item based on ID
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: Item deleted (but not really)
+
+    put:
+      description: update the Item based on ID
+      body:
+        application/json:
+          type: Item
+          examples:
+            input: !include examples/itemExample.json
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: Item updated (but not really)
+
+/customer:
+  get:
+    description: get customer Information
+    responses:
+      200:
+        body:
+          application/json:
+            type: Customer
+            examples:
+              output: !include examples/customerExample.json
+
+  post:
+    description: create customer in salesforce customer object
+    body:
+      application/json:
+        type: Customer
+        examples:
+          input: !include examples/customerExample.json
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              message: Customer created (but not really)

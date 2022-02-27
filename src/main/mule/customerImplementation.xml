@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getCustomerFlow" doc:id="02a7c2d1-4c43-4002-b6ed-22160f4a7920" >
+		<logger level="INFO" doc:name="getCustomerFlowInvoked" doc:id="b590f5d5-d5ca-48fe-950b-2be4b8bb1833" message="getCustomerFlowInvoked" />
+		<salesforce:query doc:name="queryCustomerObject" doc:id="b1a4a7da-8b6d-43a0-8909-f0250fbcd380" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[select firstName__c,address__c,lastName__c,Order__c from customer__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="transformToJson" doc:id="14ee29bb-a801-465b-8024-3a8a78a12a67" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="responsFromSalesforce" doc:id="6831e54f-b384-482c-84c5-e88374b2b81c" />
+	</flow>
+	<flow name="createCustomerFlow" doc:id="c9db9396-ae0a-45fe-aebf-06e171b30858" >
+		<logger level="INFO" doc:name="createCustomerFlowInvoked" doc:id="390bf13b-3689-4178-ae66-2dd7009d21bf" message="createOrderFlowInvoked" />
+		<ee:transform doc:name="customerMapping" doc:id="8a472782-b5c9-4110-9366-4ab0594e8a72" >
+			<ee:message >
+				<ee:set-payload resource="dw/customerMapping.dwl" />
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="customer__c" doc:name="createCustomer" doc:id="e402d473-d80e-40c8-8d90-af36d56fad12" config-ref="Salesforce_Config" />
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  response: payload,	&#10;  message: "Customer created (but not really)"&#10;}]' doc:name="responsFromSalesforce" doc:id="a1615d24-4603-4dca-ab3f-89e24e91b126" />
+	</flow>
+</mule>

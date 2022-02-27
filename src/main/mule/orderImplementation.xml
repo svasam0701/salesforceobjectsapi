@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getOrderFlow" doc:id="f60f5fc7-26ba-4af1-a7ec-7bf4f42b074b" >
+		<logger level="INFO" doc:name="getOrderFlowInvoked" doc:id="20639208-6f42-4a34-b6c2-2486ac4fc1aa" message="getOrderFlowInvoked"/>
+		<salesforce:query doc:name="queryOrderObject" doc:id="36d384ed-0959-4fd8-896a-8c7cc223f162" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[select poNumber__c,currencyCode__c,	giftWrapFlag__c,giftWrapMessage__c,shipInstructions__c,signatureRequiredFlag__c,subTotal__c,email__c from Order__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="transformToJson" doc:id="bf4dce9e-5607-4239-a5f4-ca1a9250bdd1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="responsFromSalesforce" doc:id="baeb3cc4-fd02-4e0c-b083-f5f9f6cca260" />
+	</flow>
+	<flow name="createOrderFlow" doc:id="66bce67f-9a96-4d63-a725-7c6b4e253ced" >
+		<logger level="INFO" doc:name="createOrderFlowInvoked" doc:id="47fe5382-29e8-4938-9bdf-59ca5e40b8a0" message="createOrderFlowInvoked"/>
+		<ee:transform doc:name="orderMapping" doc:id="f3e412e9-8fd9-4677-b164-08be83d13fd3" >
+			<ee:message >
+				<ee:set-payload resource="dw/orderMapping.dwl" />
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="Order__c" doc:name="createOrder" doc:id="d9467a69-2de4-409a-8a7f-3304b3071ef8" config-ref="Salesforce_Config"/>
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  response: payload,	&#10;  message: "Order created (but not really)"&#10;}]' doc:name="responsFromSalesforce" doc:id="64e278e7-0891-495d-8733-e84d3f7523b6" />
+	</flow>
+</mule>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getItemFlow" doc:id="2b9035d3-682d-4ebf-a593-6b12ebe48df4" >
+		<logger level="INFO" doc:name="getItemFlowInvoked" doc:id="9dac7fc8-19dc-411d-b04f-d498b61139ba" message="getItemFlowInvoked" />
+		<salesforce:query doc:name="queryItemObject" doc:id="f44262f1-72f5-4f3c-9ad1-b50fa1eee2e7" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[select category__c,id__c,Order__c,quantity__c,size__c from item__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="transformToJson" doc:id="6da8d51d-eb08-433e-aea3-e93b476c73f6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="responsFromSalesforce" doc:id="2e9f1c5d-995d-48bb-80b7-0f1d55aee113" />
+	</flow>
+	<flow name="createItemFlow" doc:id="b2252087-1352-4a46-bbbd-506103146545" >
+		<logger level="INFO" doc:name="createItemFlowInvoked" doc:id="794144df-a8fb-4bbb-8096-4da7ffa41afe" message="createItemFlowInvoked" />
+		<ee:transform doc:name="itemMapping" doc:id="7b5eeb7c-5a4c-42a9-af73-d32a42c041b6" >
+			<ee:message >
+				<ee:set-payload resource="dw/itemMapping.dwl" />
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="item__c" doc:name="createItem" doc:id="4eafe88d-24b3-4f84-8d45-01f445181d94" config-ref="Salesforce_Config" />
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  response: payload,	&#10;  message: "Item created (but not really)"&#10;}]' doc:name="responsFromSalesforce" doc:id="7f6304e1-0b39-4be2-a363-85036bf98523" />
+	</flow>
+</mule>
